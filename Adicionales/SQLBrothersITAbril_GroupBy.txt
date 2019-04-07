@@ -1,0 +1,206 @@
+http://www.techbrothersit.com/2017/03/
+
+How to find duplicate records by using Group by and Having clause in SQL Server - SQL Server / TSQL Tutorial Part 132
+Scenario:
+You are working as SQL Server developer. You need to write the query for dbo.Customer table that should return the duplicate records and count of duplicate record.
+
+
+Solution:
+You can use Group by and Count aggregate function to find all the duplicate records in table and count.
+
+Let's say that we have dbo.Customer table with below definition and data. We would like to find the record if it is duplicate by columns FName,LName and CountryShortName.
+
+
+Create table dbo.Customer
+ (Id int,
+  FName VARCHAR(50),
+  LName VARCHAR(50),
+  CountryShortName CHAR(2),
+  SaleAmount Int)
+GO
+--Insert Rows in dbo.Customer Table
+insert into dbo.Customer
+Values (
+1,'Raza','M','PK',10),
+(2,'Rita','John','US',12),
+(3,'Sukhi','Singh',Null,25),
+(4,'James','Smith','CA',60),
+(5,'Robert','Ladson','US',54),
+(6,'Alice','John','US',87),
+(6,'Raza','M','Pk',Null)
+Let's write our query, we have include all the columns in select list with count(*) and then group by the same columns. At the end we will be using Having clause to filter the record which are duplicate.
+
+
+SELECT fname, 
+       lname, 
+       countryshortname, 
+       Count(*) AS RecordCount 
+FROM   dbo.customer 
+GROUP  BY fname, 
+          lname, 
+          countryshortname 
+HAVING Count(*) > 1
+As from data we can see that the only record which is duplicate by FName,LName and Country short name is  'Raza','M','PK'and have total two records as returned by our query.
+
+
+How to apply Having Clause with Group by in Select Query - SQL Server / TSQL Tutorial Part 131
+Scenario:
+You are working as SQL Server developer, you are asked to write a query that should return Total SaleAmount from dbo.Customer table by CountryShortName. You are also asked to filter the records where Total SaleAmount by CountryShortName is greater than 10.
+
+
+Solution:
+From above scenario, you have noticed couple of things. First we need to sum the SaleAmount. Second we need to group by the SaleAmount by CountryShortName. The Last thing we need to filter those records after calculating the sum and only returns where total SaleAmount is greater than 10. We can not use Where clause here as where will filter the records before Group by. SQL Server provide us Having clause that we can use to filter the records after group by.
+
+Let's create dbo.Customer Table with below records and then write our query by using Group by and Having clause.
+
+
+Create table dbo.Customer
+ (Id int,
+  FName VARCHAR(50),
+  LName VARCHAR(50),
+  CountryShortName CHAR(2),
+  SaleAmount Int)
+GO
+--Insert Rows in dbo.Customer Table
+insert into dbo.Customer
+Values (
+1,'Raza','M','PK',10),
+(2,'Rita','John','US',12),
+(3,'Sukhi','Singh',Null,25),
+(4,'James','Smith','CA',60),
+(5,'Robert','Ladson','US',54),
+(6,'Alice','John','US',87),
+(6,'John',Null,'US',Null)
+Let's write our query by using Group by and then use Having to filter the record where Sum(SaleAmount) is greater than 10.
+
+SELECT countryshortname, 
+       Sum(saleamount) SaleAmountByCountry 
+FROM   dbo.customer 
+GROUP  BY countryshortname 
+HAVING Sum(saleamount) > 10 
+
+
+
+
+Understand Group by Clause in SQL Server - SQL Server / TSQL Tutorial Part 130
+Scenario: 
+You are working as SQL Server Developer. You have a dbo.Customer table which has CountryShortName and SaleAmount. You are asked to write a query that should return Sum of SaleAmount , count of records by CountryShortName.
+
+Solution:
+Group by clause is often used with aggregate functions such as Sum, Avg,Count,Max,Min to group the result set by column/s.
+
+Let's create our sample table with some data and write our query with Group by to answer our question.
+
+Create table dbo.Customer
+ (Id int,
+  FName VARCHAR(50),
+  LName VARCHAR(50),
+  CountryShortName CHAR(2),
+  SaleAmount Int)
+GO
+--Insert Rows in dbo.Customer Table
+insert into dbo.Customer
+Values (
+1,'Raza','M','PK',10),
+(2,'Rita','John','US',12),
+(3,'Sukhi','Singh',Null,25),
+(4,'James','Smith','CA',60),
+(5,'Robert','Ladson','US',54),
+(6,'Alice','John','US',87),
+(6,'John',Null,'US',Null)
+Let's write our query by using Sum, Count and Group by Clause
+
+SELECT Sum(saleamount) AS TotalSaleByCountry, 
+       Count(*) AS RecordCountByCountry, 
+       countryshortname 
+FROM   dbo.customer 
+GROUP  BY countryshortname
+
+How to use Group by Clause in SQL Server
+
+You can also use multiple columns in group by clause. think about if our table would have states and you would like to group by CountryShortName and State, You would simple include State in query as shown below.
+
+
+SELECT Sum(saleamount) AS TotalSaleByCountry, 
+       Count(*) AS RecordCountByCountry, 
+       countryshortname,
+       [State]
+FROM   dbo.customer 
+GROUP  BY countryshortname,[State]
+
+
+
+How to Get Max and Min values from a Table by using Aggregate Function - SQL Server / TSQL Tutorial Part 129
+Scenario:
+Let's say you are working as SQL Server Developer, you have dbo.Customer table with SaleAmount. You are asked to write a query that should return Max SaleAmount and Min SaleAmount from the dbo.Customer table.
+
+Solution:
+You can use Max and Min aggregate functions in SQL Server to find the Maximum and Minimum values.
+
+Let's create dbo.Customer Table with sample data so we can use Max and Min functions.
+
+
+Create table dbo.Customer
+ (Id int,
+  FName VARCHAR(50),
+  LName VARCHAR(50),
+  CountryShortName CHAR(2),
+  SaleAmount Int)
+GO
+--Insert Rows in dbo.Customer Table
+insert into dbo.Customer
+Values (
+1,'Raza','M','PK',10),
+(2,'Rita','John','US',12),
+(3,'Sukhi','Singh',Null,25),
+(4,'James','Smith','CA',60),
+(5,'Robert','Ladson','US',54),
+(6,'Alice','John','US',87),
+(6,'John',Null,'US',Null)
+Let's run the below query with Max and Min functions to finder the answer of our question.
+
+SELECT Max(saleamount) AS MaxSaleAmount, 
+       Min(saleamount) AS MinSaleAmount 
+FROM   dbo.customer 
+
+
+
+How to use Sum, Avg and Count in Select Statement - SQL Server / TSQL Tutorial Part 128
+Scenario:
+Let's say that you have dbo.Customer table with SaleAmount column and you are asked to write a query that should return you sum of SaleAmount, Average of SaleAmount and Count of all the records.
+
+Solution:
+You can use Aggregate functions such as Sum, Avg and count in TSQL to find the answer of your question.
+
+Let's create dbo.Customer Table with sample data so we can use Sum, Avg and Count aggregate functions.
+
+
+
+Create table dbo.Customer
+ (Id int,
+  FName VARCHAR(50),
+  LName VARCHAR(50),
+  CountryShortName CHAR(2),
+  SaleAmount Int)
+GO
+--Insert Rows in dbo.Customer Table
+insert into dbo.Customer
+Values (
+1,'Raza','M','PK',10),
+(2,'Rita','John','US',12),
+(3,'Sukhi','Singh',Null,25),
+(4,'James','Smith','CA',60),
+(5,'Robert','Ladson','US',54),
+(6,'Alice','John','US',87),
+(6,'John',Null,'US',Null)
+
+
+Let's run our query to find sum of SaleAmount, Avg of SaleAmount and Count of records.
+
+SELECT Sum(saleamount) AS TotalSale, 
+       Avg(saleamount) AS AvgSale, 
+       Count(*)        AS SaleRecordCount 
+FROM   dbo.customer 
+
+
+

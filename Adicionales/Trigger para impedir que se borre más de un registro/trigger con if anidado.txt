@@ -1,0 +1,64 @@
+-- creamos el trigger
+ if Object_id ('trg_BorraEmpleado','TR') is not null
+drop trigger trg_BorraEmpleado;
+go
+create trigger trg_BorraEmpleado
+on Empleados
+for delete
+as
+if (select count(*) from deleted)>1 
+	begin --como hay + de una instruccion lleva begin end
+		raiserror ('No puedes borrar mas de un Emploeado',15,1)
+		rollback --puede llevar o no el tran
+		return
+	end
+else
+	print 'un Empleado borrado' --aqui no lleva begin ni end pues es solo una instruccion
+go
+--lo probamos
+delete Empleados
+where EmployeeID > 5
+go
+--Msg 50000, Level 15, State 1, Procedure trg_BorraEmpleado, Line 7 [Batch Start Line 1133]
+--No puedes borrar mas de un Emploeado
+--Msg 3609, Level 16, State 1, Line 1134
+--The transaction ended in the trigger. The batch has been aborted.
+
+--si ponemos uno que no halla o que no exista el delete no funciona pero sale por empleado borrado
+delete Empleados
+where EmployeeID =99
+go
+--un Empleado borrado
+--(0 rows affected)
+--podemos cambiar el triger para corregir el mansaje en el caso de que el empleado no exista
+ if Object_id ('trg_BorraEmpleado','TR') is not null
+drop trigger trg_BorraEmpleado;
+go
+create trigger trg_BorraEmpleado
+on Empleados
+for delete
+as
+if (select count(*) from deleted)=0
+  begin --como hay + de una instruccion lleva begin end
+		raiserror ('No existe el Emploeado',15,1)
+		rollback --puede llevar o no el tran
+		return
+	end
+else if (select count(*) from deleted)>1 
+		begin --como hay + de una instruccion lleva begin end
+			raiserror ('No puedes borrar mas de un Empleado',15,1)
+			rollback --puede llevar o no el tran
+			return
+		end
+	else
+		print 'un Empleado borrado' --aqui no lleva begin ni end pues es solo una instruccion
+go
+-- lo probamos
+delete Empleados
+where EmployeeID =99
+go
+
+--Msg 50000, Level 15, State 1, Procedure trg_BorraEmpleado, Line 7 [Batch Start Line 1171]
+--No existe el Emploeado
+--Msg 3609, Level 16, State 1, Line 1172
+--The transaction ended in the trigger. The batch has been aborted.

@@ -1,0 +1,69 @@
+
+DROP TRIGGER IF EXISTS trg_UnSoloBorrado
+GO
+
+CREATE TRIGGER trg_UnSoloBorrado
+ON Empleados
+FOR DELETE
+AS	
+	IF (@@ROWCOUNT = 0)
+		BEGIN 
+			PRINT ('No se han encontrado registros')
+			ROLLBACK
+			RETURN
+		END
+	ELSE IF (@@ROWCOUNT>1)
+	---OTRA FORMA DE HACER EL IF ES CONTAR LOS REGISTROS DE LA TABLA DELETED)
+	-- IF (SELECT COUNT(*) FROM DELETED)>1
+		BEGIN 
+			RAISERROR ('No se pueden hacer borrados masivos, solo una fila cada vez', 16, 3)
+			ROLLBACK TRAN
+			RETURN --rompe la ejecucion y sale del trigger
+		END
+	ELSE
+		PRINT ('Borrado correcto')
+GO
+
+
+DELETE Empleados
+GO
+--Msg 50000, Level 16, State 1, Procedure trg_UnSoloBorrado, Line 7 [Batch Start Line 384]
+--No se pueden hacer borrados masivos, solo una fila cada vez
+--Msg 3609, Level 16, State 1, Line 385
+--The transaction ended in the trigger. The batch has been aborted.
+
+SELECT * FROM Empleados ORDER BY EmployeeID
+GO
+
+--EmployeeID	LastName
+--1	Davolio
+--2	Fuller
+--3	Leverling
+--4	Peacock
+--5	Buchanan
+--6	Suyama
+--7	King
+--8	Callahan
+--9	Dodsworth
+
+DELETE Empleados
+WHERE EmployeeID = 1
+GO
+
+--EmployeeID	LastName
+--2	Fuller
+--3	Leverling
+--4	Peacock
+--5	Buchanan
+--6	Suyama
+--7	King
+--8	Callahan
+--9	Dodsworth
+
+DELETE Empleados
+WHERE EmployeeID=99
+GO
+
+--No se han encontrado registros
+--Msg 3609, Level 16, State 1, Line 432
+--The transaction ended in the trigger. The batch has been aborted.
